@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>University Chatbot Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            margin: 20px auto;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            background: white;
+            overflow: hidden;
+        }
+
+        .chatbot {
+            background: #f8f9fa;
+            height: 500px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .chat_header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .chat_header h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status {
+            background: #28a745;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            display: inline-block;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .chat_messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: #f8f9fa;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            margin-bottom: 5px;
+            word-wrap: break-word;
+            position: relative;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message.bot {
+            background: white;
+            color: #333;
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .timestamp {
+            font-size: 0.65rem;
+            margin-top: 5px;
+            opacity: 0.7;
+            text-align: right;
+        }
+
+        .message.bot .timestamp {
+            color: #666;
+        }
+
+        .message.user .timestamp {
+            color: rgba(255,255,255,0.8);
+        }
+
+        .typing_indicator {
+            display: flex;
+            gap: 5px;
+            padding: 12px 16px;
+            background: white;
+            border-radius: 18px;
+            width: fit-content;
+            margin: 10px 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-bottom-left-radius: 5px;
+        }
+
+        .typing_indicator span {
+            width: 8px;
+            height: 8px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            animation: typing 1.5s infinite ease-in-out;
+        }
+
+        .typing_indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing_indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+
+        .chat_input {
+            display: flex;
+            gap: 10px;
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .chat_input input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            outline: none;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+
+        .chat_input input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .chat_input input::placeholder {
+            color: #adb5bd;
+        }
+
+        .chat_input button {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .chat_input button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .chat_input button:active {
+            transform: translateY(0);
+        }
+
+        .clear-btn {
+            background: linear-gradient(135deg, #f56565 0%, #c53030 100%) !important;
+            padding: 12px 20px !important;
+        }
+
+        .clear-btn:hover {
+            box-shadow: 0 5px 15px rgba(245, 101, 101, 0.4) !important;
+        }
+
+        .suggested-questions {
+            display: flex;
+            gap: 10px;
+            padding: 15px 20px;
+            background: white;
+            border-top: 1px solid #e9ecef;
+            flex-wrap: wrap;
+        }
+
+        .suggested-questions button {
+            padding: 8px 16px;
+            background: #f1f3f5;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: #495057;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            border: 1px solid transparent;
+        }
+
+        .suggested-questions button:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+            border-color: #667eea;
+        }
+
+        .suggested-questions button:active {
+            transform: translateY(0);
+        }
+
+        /* Scrollbar styling */
+        .chat_messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat_messages::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .chat_messages::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 3px;
+        }
+
+        .chat_messages::-webkit-scrollbar-thumb:hover {
+            background: #764ba2;
+        }
+
+        /* Welcome message styling */
+        .welcome-message {
+            text-align: center;
+            color: #6c757d;
+            padding: 20px;
+            font-style: italic;
+        }
+
+        /* Responsive design */
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                margin: 10px auto;
+            }
+            
+            .chatbot {
+                height: 450px;
+            }
+            
+            .message {
+                max-width: 90%;
+            }
+            
+            .suggested-questions button {
+                padding: 6px 12px;
+                font-size: 0.8rem;
+            }
+            
+            .chat_input button {
+                padding: 12px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="chatbot">
+            <div class="chat_header">
+                <h3>
+                    <span>🎓</span>
+                    University Assistant
+                </h3>
+                <span class="status">Online</span>
+            </div>
+            <div class="chat_messages" id="messages">
+                <!-- Messages will appear here -->
+            </div>
+            <div class="typing_indicator" id="typingIndicator" style="display: none;">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+
+        <div class="chat_input">
+            <input type="text" id="userInput" placeholder="Type your query..." autocomplete="off">
+            <button onclick="sendMessage()">Send</button>
+            <button onclick="clearChat()" class="clear-btn">Clear</button>
+        </div>
+
+        <div class="suggested-questions">
+            <button onclick="quickQuestion('admission process')">📝 Admission</button>
+            <button onclick="quickQuestion('exam schedule')">📅 Exams</button>
+            <button onclick="quickQuestion('fee structure')">💰 Fees</button>
+            <button onclick="quickQuestion('hostel facilities')">🏠 Hostel</button>
+            <button onclick="quickQuestion('scholarship')">🎯 Scholarship</button>
+            <button onclick="quickQuestion('placement')">💼 Placement</button>
+            <button onclick="quickQuestion('menu')">📋 Menu</button>
+        </div>
+    </div>
+
+    <script>
+        // Comprehensive response database
+        const responses = {
+            'hello|hi|hey|good morning|good afternoon|good evening': '👋 Hello! Welcome to University Assistant. I\'m here to help with all your academic queries. How can I assist you today?',
+            
+            'admission|apply|enroll|registration|admissions': '📝 Admission Process:\n\nStep 1: Visit our admissions portal (admissions.university.edu)\n Step 2: Fill online application form with personal details\n Step 3: Upload required documents:\n• 10th marksheet\n• 12th marksheet\n• Transfer certificate\n• Passport size photo\nStep 4: Pay application fee of ₹500\nStep 5: Schedule counseling (if applicable)\n\nImportant Dates:\n• Application start: Jan 15, 2024\n• Application deadline: April 30, 2024\n• Counseling: May 15-30, 2024\n\nNeed help with specific course requirements?',
+            
+            'course|subject|syllabus|program|courses|subjects': '🎓 Academic Programs Offered:\n\nUndergraduate (UG):\n• B.Tech (Computer Science, IT, ECE, Mechanical, Civil)\n• BBA (General, Finance, Marketing, HR)\n• B.Com (Honors, Professional)\n• B.Sc (Computer Science, Math, Physics, Chemistry)\n• BA (Economics, English, Psychology)\n\nPostgraduate (PG):\n• M.Tech (All specializations)\n• MBA (Full-time, Executive, Part-time)\n• M.Com (Finance, Accounting)\n• M.Sc (All streams)\n• MA (Economics, English)\n\nDoctoral Programs:\n• Ph.D in all disciplines\n\nFor detailed syllabus, specify course name (e.g., "B.Tech CS syllabus")',
+            
+            'exam|schedule|result|test|exams|results': '📋 Examination Schedule 2024:\n\nMid-term Examinations:\n• Date: April 10-15, 2024\n• Time: 10:00 AM - 1:00 PM\n• Venue: Respective departments\n\nFinal Examinations:\n• Date: May 20-30, 2024\n• Time: 10:00 AM - 1:00 PM\n• Practical Exams: May 15-19, 2024\n\nResult Declaration:\n• UG Results: June 15, 2024\n• PG Results: June 20, 2024\n• Revaluation: June 25-30, 2024\n\nCheck results on student portal (results.university.edu) with roll number.\n\nBacklog Exams: July 15-20, 2024',
+            
+            'fee|payment|tuition|cost|fees|finance': '💰 Fee Structure (Academic Year 2024-25):\n\nUndergraduate Programs (per year):\n• B.Tech: ₹75,000\n• BBA: ₹60,000\n• B.Com: ₹50,000\n• B.Sc: ₹55,000\n• BA: ₹45,000\n\nPostgraduate Programs (per year):\n• M.Tech: ₹90,000\n• MBA: ₹85,000\n• M.Com: ₹65,000\n• M.Sc: ₹70,000\n• MA: ₹55,000\n\nAdditional Fees:\n• Hostel: ₹30,000/year\n• Library: ₹2,000/year\n• Sports: ₹1,500/year\n• Laboratory: ₹3,000/year\n\nPayment Options:\n• Online: UPI, Netbanking, Credit/Debit Card\n• Offline: Bank challan (SBI, HDFC, ICICI)\n• Installments: 2 installments (July & December)\n\nScholarships available - ask me about "scholarship"',
+            
+            'hostel|dorm|accommodation|housing|hostels': '🏠 Hostel Facilities:\n\nBoys Hostel:\n• Capacity: 500 students\n• Rooms: Shared (2-3 students)\n• Fee: ₹30,000/year\n\nGirls Hostel:\n• Capacity: 600 students\n• Rooms: Shared (2-3 students)\n• Fee: ₹32,000/year\n\nAmenities:\n• 24/7 Wi-Fi\n• Mess with vegetarian/non-vegetarian options\n• Common room with TV\n• Indoor games room\n• Study area\n• Laundry service\n• 24/7 security with CCTV\n• Visitor room\n\nMess Fees: ₹2,500/month (included in hostel fee)\n\nApplication: Apply within 15 days of admission confirmation. 80% seats available.',
+            
+            'library|books|reading|study material|library hours': '📚 Library Information:\n\nTimings:\n• Monday-Friday: 8:00 AM - 8:00 PM\n• Saturday: 9:00 AM - 5:00 PM\n• Sunday: Closed\n• Holiday: 10:00 AM - 2:00 PM\n\nResources:\n• Physical books: 50,000+ volumes\n• E-books: 20,000+ titles\n• Journals: 200+ national & international\n• Digital databases: IEEE, Springer, JStor\n• Thesis/Dissertations: 5,000+\n\nBorrowing Rules:\n• UG students: 5 books for 15 days\n• PG students: 7 books for 20 days\n• Faculty: 10 books for 30 days\n• Late fee: ₹5/day per book\n\nDigital Library: Access via student portal (library.university.edu)',
+            
+            'scholarship|aid|financial help|concession|scholarships': '🎯 Scholarship Opportunities:\n\nMerit-based Scholarships:\n• Top 1%: 100% fee waiver\n• Top 5%: 75% fee waiver\n• Top 10%: 50% fee waiver\n• Top 20%: 25% fee waiver\n\nNeed-based Scholarships:\n• Family income < ₹1L/year: 100% waiver\n• Family income ₹1-2L/year: 50% waiver\n• Family income ₹2-3L/year: 25% waiver\n\nSports Quota:\n• National level: 75% waiver\n• State level: 50% waiver\n• District level: 25% waiver\n\nSpecial Categories:\n• SC/ST: Government schemes\n• OBC: Post-matric scholarship\n• Minority: Maulana Azad scheme\n• Girls: 10% additional concession\n\nApplication Deadline: May 1, 2024\nDocuments Required: Income certificate, caste certificate (if applicable), previous year marksheets',
+            
+            'grade|gpa|percentage|marks|grading': '📊 Grading System:\n\nGrade Points:\n• A+ = 4.0 (90-100%)\n• A = 3.5 (80-89%)\n• B+ = 3.0 (70-79%)\n• B = 2.5 (60-69%)\n• C+ = 2.0 (50-59%)\n• C = 1.5 (40-49%)\n• D = 1.0 (35-39%)\n• F = 0.0 (<35%)\n\nCGPA Calculation:\nCGPA = (Σ Grade Points × Credits) / Σ Credits\n\nExample:\nSubject 1: Grade A (4) × 4 credits = 16\nSubject 2: Grade B (3) × 3 credits = 9\nCGPA = (16 + 9) / (4 + 3) = 25/7 = 3.57\n\nGrade Meanings:\n• A+ to B: First Division\n• B+ to C+: Second Division\n• C to D: Pass\n• F: Fail (need to reappear)\n\nCheck grades on portal with roll number',
+            
+            'faculty|teacher|professor|staff|faculties': '👨‍🏫 Faculty Information:\n\nFaculty Strength:\n• Total Professors: 150+\n• Ph.D. holders: 120 (80%)\n• Industry experts: 30 visiting faculty\n\nStudent-Faculty Ratio:\n• UG Programs: 20:1\n• PG Programs: 15:1\n• Ph.D.: 5:1\n\nDepartments:\n• Engineering: 45 faculty\n• Management: 30 faculty\n• Science: 35 faculty\n• Arts: 25 faculty\n• Commerce: 15 faculty\n\nAchievements:\n• 500+ research papers published\n• 20+ patents filed\n• 15+ funded projects\n\nContact HOD for:\n• Academic queries\n• Project guidance\n• Research opportunities',
+            
+            'placement|job|career|company|placements|jobs': '💼 Placement Cell:\n\nPlacement Statistics 2023-24:\n• Overall placement: 92%\n• Highest package: ₹25 LPA\n• Average package: ₹8-12 LPA\n• Median package: ₹7.5 LPA\n\nTop Recruiters:\n• TCS: 50+ offers\n• Infosys: 45+ offers\n• Wipro: 40+ offers\n• Deloitte: 30+ offers\n• Amazon: 25+ offers\n• Microsoft: 15+ offers\n• Google: 10+ offers\n\nInternship Opportunities:\n• 80% students get internships\n• Stipend: ₹15,000-30,000/month\n• Duration: 2-6 months\n\nPlacement Process:\n1. Registration (July-Aug)\n2. Pre-placement talks\n3. Aptitude tests\n4. Group discussions\n5. Technical interviews\n6. HR interviews\n\nNext Placement Drive: July 2024\nTraining Programs: Resume writing, GD PI, aptitude',
+            
+            'contact|help|support|phone|email|reach': '📞 Contact Information:\n\nAdmission Office:\n• Phone: 1800-123-4567 (Toll-free)\n• Email: admissions@university.edu\n• Timing: 9:00 AM - 5:00 PM (Mon-Fri)\n\nStudent Support:\n• Help Desk: help@university.edu\n• Technical Support: it@university.edu\n• Library: library@university.edu\n• Hostel: hostel@university.edu\n\nEmergency Contacts:\n• Security: 1122\n• Medical: 108\n• Women Helpline: 1091\n\nAddress:\nMain Campus, Education City\nNear Technology Park\nMumbai - 400001\n\nSocial Media:\n• Instagram: @university_official\n• Twitter: @university_updates\n• LinkedIn: University Official',
+            
+            'holiday|vacation|break|holidays|vacations': '🎉 Academic Calendar 2024:\n\nUpcoming Holidays:\n• Summer Break: May 25 - July 10\n• Independence Day: Aug 15\n• Ganesh Chaturthi: Sep 7\n• Dussehra: Oct 12\n• Diwali Break: Nov 10-15\n• Christmas: Dec 25\n• New Year: Jan 1\n• Republic Day: Jan 26\n• Holi: Mar 25\n• Eid: As per notification\n\nImportant Dates:\n• Last working day: May 24\n• Re-opening: July 11\n• Winter Break: Dec 25 - Jan 2\n\nDownload full academic calendar from portal',
+            
+            'sports|gym|athletics|physical|sport': '⚽ Sports Facilities:\n\nOutdoor Facilities:\n• Cricket ground (floodlit)\n• Football field\n• Basketball court (2)\n• Volleyball court\n• Tennis court (2)\n• Athletics track\n\nIndoor Facilities:\n• Badminton court (3)\n• Table tennis (4 tables)\n• Chess room\n• Carrom room\n• Gymnasium (6 AM - 8 PM)\n• Yoga center\n\nSports Events:\n• Annual Sports Meet: December\n• Inter-college tournament: January\n• Faculty vs Students: February\n\nAchievements:\n• University champions: 5 years\n• National level players: 15\n• State level players: 50\n\nGym Membership: Included in sports fee',
+            
+            'canteen|food|cafe|mess|restaurant': '🍽️ Food Services:\n\nMain Canteen:\n• Timing: 8:00 AM - 8:00 PM\n• Cuisines: North Indian, South Indian, Chinese\n• Special: Breakfast, Lunch, Snacks, Dinner\n• Average meal cost: ₹50-100\n\nCafe Coffee Day:\n• Timing: 9:00 AM - 9:00 PM\n• Coffee, snacks, sandwiches\n• Student discount: 10%\n\nJuice Center:\n• Fresh juices, smoothies\n• Timing: 10:00 AM - 6:00 PM\n\nMess (Hostel Students):\n• Breakfast: 7:30-9:00 AM\n• Lunch: 12:30-2:00 PM\n• Snacks: 5:00-6:00 PM\n• Dinner: 7:30-9:00 PM\n• Monthly mess fee: ₹2,500\n\nFood Court: Coming soon!',
+            
+            'transport|bus|shuttle|conveyance|travel': '🚌 Transport Facilities:\n\nCollege Bus Service:\n• Routes: All major city areas\n• Buses: 25 buses\n• First bus: 7:00 AM\n• Last bus: 6:00 PM\n• Monthly pass: ₹1,500\n• Daily pass: ₹100\n\nRoutes Covered:\n• Route 1: City Center - Campus\n• Route 2: Railway Station - Campus\n• Route 3: Metro Station - Campus\n• Route 4: Residential areas\n\nShuttle Service:\n• Between departments: Every 30 mins\n• To metro station: Every 20 mins\n• Free for students\n\nParking:\n• Two-wheeler: ₹500/year\n• Four-wheeler: ₹2,000/year\n• Cycle stand: Free\n\nEmergency Transport:\n• 24/7 ambulance on campus',
+            
+            'menu|help|options|what can you do|commands': '🤖 I can help you with:\n\nAcademic:\n• 📝 Admissions\n• 🎓 Courses & Syllabus\n• 📅 Exam Schedules\n• 📊 Grades & Results\n\nStudent Life:\n• 🏠 Hostel Facilities\n• 📚 Library Information\n• ⚽ Sports & Gym\n• 🍽️ Canteen & Food\n\nFinancial:\n• 💰 Fee Structure\n• 🎯 Scholarships\n• 💼 Placements & Jobs\n\nSupport:\n• 👨‍🏫 Faculty Details\n• 📞 Contact Information\n• 🚌 Transport\n• 🎉 Holidays\n\nQuick Commands:\n• Type specific queries\n• Use suggested buttons\n• Ask for "details" about any topic\n\nJust type your question or select from the buttons below!',
+            
+            'thanks|thank you|thank': '😊 You\'re welcome! Happy to help. Feel free to ask if you need anything else about university life.',
+            
+            'bye|goodbye|see you': '👋 Goodbye! Have a great day! Visit our portal for more information. Come back if you need any help!',
+            
+            'default': 'I can help with academic and administrative queries. Try asking about:\n\n• 📝 "admission process"\n• 📅 "exam schedule"\n• 💰 "fee structure"\n• 🏠 "hostel facilities"\n• 🎯 "scholarship"\n• 💼 "placement"\n• 📋 "menu" for all options\n\nOr select from the suggested questions below!'
+        }
+
+        let conversationHistory = [];
+
+        // Add message to chat
+        function addMessage(text, sender) {
+            const messages = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            // Format message with line breaks
+            const formattedText = text.replace(/\n/g, '<br>');
+            
+            messageDiv.innerHTML = `
+                <div>${formattedText}</div>
+                <div class="timestamp">${time}</div>
+            `;
+            
+            messages.appendChild(messageDiv);
+            messages.scrollTop = messages.scrollHeight;
+            
+            conversationHistory.push({
+                text: text,
+                sender: sender,
+                time: time
+            });
+        }
+
+        // Show/hide typing indicator
+        function showTypingIndicator(show) {
+            const indicator = document.getElementById('typingIndicator');
+            indicator.style.display = show ? 'flex' : 'none';
+        }
+
+        // Get bot response based on user input
+        function getBotResponse(userInput) {
+            userInput = userInput.toLowerCase().trim();
+            
+            // Check for specific course syllabus request
+            if (userInput.includes('syllabus') || userInput.includes('subjects')) {
+                if (userInput.includes('b.tech') || userInput.includes('btech')) {
+                    if (userInput.includes('cs') || userInput.includes('computer')) {
+                        return "📚 B.Tech Computer Science Syllabus:\n\nYear 1 (Common to all branches):\n• Mathematics I & II\n• Physics\n• Chemistry\n• Programming in C\n• Engineering Drawing\n• Basic Electronics\n\nYear 2:\n• Data Structures\n• Object-Oriented Programming\n• Digital Electronics\n• Discrete Mathematics\n• Computer Organization\n• Database Management Systems\n\nYear 3:\n• Operating Systems\n• Computer Networks\n• Design & Analysis of Algorithms\n• Web Technologies\n• Software Engineering\n• Theory of Computation\n\nYear 4:\n• Artificial Intelligence\n• Machine Learning\n• Cloud Computing\n• Major Project\n• Electives\n\nCheck portal for detailed syllabus PDF with electives.";
+                    }
+                    return "📚 B.Tech Syllabus (All Branches):\n\nCommon Subjects (Year 1-2):\n• Engineering Mathematics\n• Physics/Chemistry\n• Programming\n• Engineering Drawing\n• Basic Electronics/Mechanical\n\nBranch-specific from Year 3:\n• CS/IT: Programming, Networks, AI\n• ECE: Communication, VLSI, Embedded\n• Mechanical: Thermodynamics, Design\n• Civil: Structures, Surveying, Materials\n\nWhich branch would you like details for? (CS, IT, ECE, Mechanical, Civil)";
+                }
+                if (userInput.includes('bba')) {
+                    return "📚 BBA Syllabus:\n\nYear 1:\n• Principles of Management\n• Business Economics\n• Financial Accounting\n• Business Mathematics\n• Business Communication\n\nYear 2:\n• Marketing Management\n• Financial Management\n• Human Resource Management\n• Organizational Behavior\n• Business Law\n\nYear 3:\n• Strategic Management\n• Entrepreneurship\n• International Business\n• Electives (Marketing/Finance/HR)\n• Research Project\n\nSpecializations available in final year.";
+                }
+                if (userInput.includes('mba')) {
+                    return "📚 MBA Syllabus:\n\nCore Subjects (Year 1):\n• Management Principles\n• Economics for Managers\n• Accounting & Finance\n• Marketing Management\n• HR Management\n• Operations Management\n• Business Analytics\n• Research Methodology\n\nSpecializations (Year 2):\n• Marketing: Brand Management, Digital Marketing\n• Finance: Investment Analysis, Risk Management\n• HR: Talent Management, Industrial Relations\n• Operations: Supply Chain, Quality Management\n\nSummer Internship mandatory between Year 1 & 2.";
+                }
+            }
+            
+            // Check for roll number based grade
+            if (userInput.includes('roll no') || userInput.match(/\d{10}/)) {
+                return "🔍 To check your grades:\n\n1. Visit student portal (results.university.edu)\n2. Login with your credentials\n3. Click on 'Results' section\n4. Select your course and semester\n5. Enter roll number\n6. Download/print result\n\nNeed help?\n• Forgot password: Click 'Forgot Password'\n• IT Support: it@university.edu\n• Exam Cell: exams@university.edu\n\nSMS Service: Type RESULT <ROLLNO> to 56789";
+            }
+            
+            // Check for date/time queries
+            if (userInput.includes('today') || userInput.includes('date') || userInput.includes('day')) {
+                const today = new Date();
+                const options = { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                };
+                return `📅 Today is ${today.toLocaleDateString('en-IN', options)}`;
+            }
+            
+            // Check for time query
+            if (userInput.includes('time') || userInput.includes('clock')) {
+                const time = new Date().toLocaleTimeString('en-IN', { 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                });
+                return `🕐 Current time is ${time}`;
+            }
+            
+            // Check for thanks
+            if (userInput.includes('thank')) {
+                return responses['thanks|thank you|thank'];
+            }
+            
+            // Check for bye
+            if (userInput.includes('bye') || userInput.includes('goodbye')) {
+                return responses['bye|goodbye|see you'];
+            }
+            
+            // Check for menu/help
+            if (userInput === 'menu' || userInput === 'help' || userInput === 'options' || userInput === 'commands') {
+                return responses['menu|help|options|what can you do|commands'];
+            }
+            
+            // Check all response patterns
+            for (let key in responses) {
+                const patterns = key.split('|');
+                for (let pattern of patterns) {
+                    if (userInput.includes(pattern)) {
+                        return responses[key];
+                    }
+                }
+            }
+            
+            return responses['default'];
+        }
+
+        // Send message function
+        function sendMessage() {
+            const input = document.getElementById('userInput');
+            const text = input.value.trim();
+            
+            if (!text) return;
+            
+            // Add user message
+            addMessage(text, 'user');
+            input.value = '';
+            
+            // Show typing indicator
+            showTypingIndicator(true);
+            
+            // Simulate bot typing delay
+            setTimeout(() => {
+                // Get and add bot response
+                const response = getBotResponse(text);
+                addMessage(response, 'bot');
+                showTypingIndicator(false);
+            }, 1000);
+        }
+
+        // Quick question button
+        function quickQuestion(question) {
+            document.getElementById('userInput').value = question;
+            sendMessage();
+        }
+
+        // Clear chat history
+        function clearChat() {
+            if (confirm('Are you sure you want to clear the chat history?')) {
+                document.getElementById('messages').innerHTML = '';
+                conversationHistory = [];
+                // Add welcome message
+                setTimeout(() => {
+                    addMessage('👋 Chat cleared! How can I help you today? Type "menu" to see options.', 'bot');
+                }, 100);
+            }
+        }
+
+        // Handle Enter key
+        document.getElementById('userInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Load chat with welcome message on page load
+        window.onload = function() {
+            addMessage('👋 Hello! I\'m your University Assistant. I can help you with admissions, courses, exams, fees, scholarships, and more! Type "menu" to see all options or select from the suggested questions below.', 'bot');
+            
+            // Focus on input
+            document.getElementById('userInput').focus();
+        }
+
+        // Add some CSS animations for new messages
+        const style = document.createElement('style');
+        style.textContent = `
+            .message {
+                animation: slideIn 0.3s ease-out;
+            }
+            
+            @keyframes slideIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            
+            .message.bot {
+                background: white;
+                border: 1px solid #e9ecef;
+            }
+            
+            .message.bot br {
+                content: "";
+                margin: 1em;
+                display: block;
+                font-size: 24%;
+            }
+            
+            .message.bot strong {
+                color: #667eea;
+            }
+            
+            .message.user strong {
+                color: #fff;
+                opacity: 0.9;
+            }
+            
+            /* Responsive fixes */
+            @media (max-width: 480px) {
+                .message {
+                    max-width: 95%;
+                    font-size: 0.9rem;
+                }
+                
+                .chat_input {
+                    flex-wrap: wrap;
+                }
+                
+                .chat_input button {
+                    flex: 1;
+                }
+                
+                .suggested-questions {
+                    justify-content: center;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
