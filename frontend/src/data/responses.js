@@ -42,4 +42,4 @@ export const responses = {
             'bye|goodbye|see you': '👋 Goodbye! Have a great day! Visit our portal for more information. Come back if you need any help!',
             
             'default': 'I can help with academic and administrative queries. Try asking about:\n\n• 📝 "admission process"\n• 📅 "exam schedule"\n• 💰 "fee structure"\n• 🏠 "hostel facilities"\n• 🎯 "scholarship"\n• 💼 "placement"\n• 📋 "menu" for all options\n\nOr select from the suggested questions below!'
-        };
+        }
