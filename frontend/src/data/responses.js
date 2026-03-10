@@ -33,9 +33,14 @@ export const responses = {
             
             'menu|help|options|what can you do|commands': '🤖 I can help you with:\n\nAcademic:\n• 📝 Admissions\n• 🎓 Courses & Syllabus\n• 📅 Exam Schedules\n• 📊 Grades & Results\n\nStudent Life:\n• 🏠 Hostel Facilities\n• 📚 Library Information\n• ⚽ Sports & Gym\n• 🍽️ Canteen & Food\n\nFinancial:\n• 💰 Fee Structure\n• 🎯 Scholarships\n• 💼 Placements & Jobs\n\nSupport:\n• 👨‍🏫 Faculty Details\n• 📞 Contact Information\n• 🚌 Transport\n• 🎉 Holidays\n\nQuick Commands:\n• Type specific queries\n• Use suggested buttons\n• Ask for "details" about any topic\n\nJust type your question or select from the buttons below!',
             
+            'fine|penalty':'💸 Fine and Penalty Information:\n\nLate Fee:\n• ₹5/day per book (Library)\n• ₹100/day (Hostel)\n\nOther Penalties:\n• Misconduct: ₹1,000-5,000\n• Damage to property: Compensation required\n• Academic misconduct: Disciplinary action\n\nPayment Methods:\n• Online: Credit/Debit card, Net banking\n• Offline: Cash, Cheque, Demand Draft\n\nAppeal Process:\n• Submit appeal within 7 days of penalty notice\n• Grounds: Wrongful imposition, excessive penalty',
+
+            'contact|help|support|phone|email|reach': '📞 Contact Information:\n\nAdmission Office:\n• Phone: 1800-123-4567 (Toll-free)\n• Email: admissions@university.edu\n• Timing: 9:00 AM - 5:00 PM (Mon-Fri)\n\nStudent Support:\n• Help Desk: help@university.edu\n• Technical Support: it@university.edu\n• Library: library@university.edu\n• Hostel: hostel@university.edu\n\nEmergency Contacts:\n• Security: 1122\n• Medical: 108\n• Women Helpline: 1091\n\nAddress:\nMain Campus, Education City\nNear Technology Park\nMumbai - 400001\n\nSocial Media:\n• Instagram: @university_official\n• Twitter: @university_updates\n• LinkedIn: University Official',
+
             'thanks|thank you|thank': '😊 You\'re welcome! Happy to help. Feel free to ask if you need anything else about university life.',
             
             'bye|goodbye|see you': '👋 Goodbye! Have a great day! Visit our portal for more information. Come back if you need any help!',
             
             'default': 'I can help with academic and administrative queries. Try asking about:\n\n• 📝 "admission process"\n• 📅 "exam schedule"\n• 💰 "fee structure"\n• 🏠 "hostel facilities"\n• 🎯 "scholarship"\n• 💼 "placement"\n• 📋 "menu" for all options\n\nOr select from the suggested questions below!'
         };
+        
